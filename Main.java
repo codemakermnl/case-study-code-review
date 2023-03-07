@@ -1,6 +1,6 @@
-import java.util.*;
+import java.util.*; // Bad practice to use wildcard imports. Try to use single code imports.
 
-class User {
+class User { 
     private int id;
     private String name;
 
@@ -25,11 +25,15 @@ class User {
         this.id = id;
     }
 
-    public void displayMethod() {
+    // As much as possible, just override the toString() method. We don't want to place the responsibility of showing the fields directly in 
+    // the POJO class. Printing of the toString() method should be the responsibility of the calling class.
+    public void displayMethod() { 
         System.out.println("ID: " + id + ", Name: " + name);
     }
 }
 
+ // Why does Product extend the User? Think about this. In the real world, is the product a User? Obviously no. Try renaming the User class into
+// something like IdentifiableEntity or do not extend Product from the User class. 
 class Product extends User {
     private double price;
     private int quantity;
@@ -68,7 +72,7 @@ class Customer extends User {
    private  String address;
    private double balance;
    private int loyaltyPoints;
-   private ArrayList<Product> products;
+   private ArrayList<Product> products; // Try to use generic interfaces when instantiating Lists. so instead of using the concrete ArrayList<>, use List<> instead.
   
       public Customer(int id, double balance, String name, String address) {
           super(id, name);
@@ -117,9 +121,14 @@ class Customer extends User {
   
 
 class ProductManager extends User {
-    private ArrayList<Product> products = new ArrayList<>();
-    private ArrayList<Customer> customers = new ArrayList<>();
-    int max = 5;
+    private ArrayList<Product> products = new ArrayList<>(); // Use generic List<> instead
+    private ArrayList<Customer> customers = new ArrayList<>(); // Use generic List<> instead
+    
+    // As much as possible, do make instance variables private. If this is a constant, you should instead rename it to 
+    // private static final int MAX = 5;
+    // private means it can only be used in this class. static means it does not belong to any instances of this class, and is fixed throughout.
+    // final means it can't be changed throughout the class. Also capitalizing all the letters here is a java code convention to signify that it's a constant.
+    int max = 5;  
     
 
     public ProductManager(int id, String name) {
@@ -128,12 +137,16 @@ class ProductManager extends User {
         customers = new ArrayList<>();
     }
 
-
+     
     public void addProduct(Product product) {
+        // What about if there are already existing products? 
+        // You should add validations also to check for duplicates before adding them into the list.
         products.add(product);
     }
 
     public void deleteProduct(int id) {
+        // You can simplify all of these code into one line. Use removeIf(...) directly on the list.
+        // See https://www.javatpoint.com/java-collection-removeif-method
         for (Product product : products) {
             if (product.getId() == id) {
                 products.remove(product);
@@ -148,6 +161,10 @@ class ProductManager extends User {
     public void modifyProduct(int id, String name, double price, int quantity) {
             for (Product product : products) {
                 if (product.getId() == id) {
+                    
+                    // While these codes are correct, you should instead declare an updateProduct(..) method inside the Product class, that houses
+                    // these setter methods.
+                    // Why? This is to practice the general principle of abstraction and promote code cleanliness.
                     product.setName(name);
                     product.setPrice(price);
                     product.setQuantity(quantity);
@@ -160,22 +177,27 @@ class ProductManager extends User {
     }
 
     public void showAllProducts() {
-        if (products.size() == 0) {
+        if (products.size() == 0) { // You can instead use the isEmpty() method of the list. It returns true if the list is empty.
             System.out.println("No product found.");
             return;
         }
 
-        else {
+        else { // Why is there an else here when the above code already returns should it succeed? Remove this else.
           
             System.out.println("ID\tName\tPrice\tQuantity");
             for (Product product : products) {
+                // You can instead abstract these getters and override the toString() method of the product class and call
+                // it via System.out.println(product); It will automatically call the toString() method.
                 System.out.println(product.getId() + "\t" + product.getName() + "\t" + product.getPrice() + "\t" + product.getQuantity());
             }
         }
        
     }
 
-    public boolean isProductExist(int id) {
+    public boolean isProductExist(int id) { // Rename the method name to doesProductExist(). It sounds grammatically correct.
+        // You can use Lambdas and the stream API here instead of writing it in more lines than needed.
+        // You can use this line instead:
+        // return products.stream().anyMatch(p -> p.getId() == id);
         for (Product product : products) {
             if (product.getId() == id) {
                 return true;
@@ -187,6 +209,7 @@ class ProductManager extends User {
     public void addCustomer(Customer customer) {
        
         for (Customer customer1 : customers) {
+            // Ideally you should be using and overriding  Comparators and the Comparable interfaces, but that might be overkill.
             if (customer1.getId() == customer.getId()) {
                 System.out.println("Customer already exist.");
                 return;

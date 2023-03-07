@@ -275,6 +275,9 @@ class ProductManager extends User {
             System.out.println("Customer balance is not enough.");
             return;
         }
+        
+        // Can you refactor this code? This is a bad habit of making stuff overcomplicated for what it is. 
+        // Plus it is hard to read, and maybe is adding more time/space complexity than needed.
         for (Customer customer : customers) {
             if (customer.getId() == customerId) {
                 for (Product product : products) {
